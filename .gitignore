@@ -73,7 +73,6 @@ crashlytics-build.properties
 
 .ExternalResource
 .vscode
-*.meta
 debug
 *.docx
 Document

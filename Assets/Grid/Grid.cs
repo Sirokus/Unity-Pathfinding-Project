@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Mine
 {
@@ -46,12 +48,17 @@ namespace Mine
 
         public bool RandomBlocker = false;
 
+        public bool RandomCost = true;
+
         public TextMeshProUGUI costCountTxt;
 
         void Awake() 
         {
             if(ins)
-                Destroy(ins);
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             ins = this;
         }
@@ -59,6 +66,7 @@ namespace Mine
         // Start is called before the first frame update
         void Start()
         {
+            //生成Tile
             for (int i = 0; i < gridSize.x; i++)
             {
                 tiles.Add(new List<Tile>());
@@ -67,6 +75,7 @@ namespace Mine
                     GameObject tile = Instantiate(tilePrefab, new Vector2(i, j) + new Vector2(transform.position.x, transform.position.y), Quaternion.identity);
 
                     Tile t = tile.GetComponent<Tile>();
+                    t.randomCost = RandomCost;
                     t.setWalkable(Random.value > NotWalkableTileGenerationProbability || !RandomBlocker);
 
                     tiles[i].Add(t);
@@ -74,6 +83,7 @@ namespace Mine
                 }
             }
 
+            //根据网格规模自动放置玩家摄像机
             Camera playerCamera = FindFirstObjectByType<Camera>();
 
             Vector3 pos = playerCamera.transform.position;
@@ -83,6 +93,10 @@ namespace Mine
 
             int max = Mathf.Max(gridSize.x, gridSize.y);
             playerCamera.orthographicSize = max / 2;
+
+            //初始化部分引用
+            costCountTxt = GameObject.Find("CountTxt").GetComponent<TextMeshProUGUI>();
+            GameObject.Find("RestartBtn").GetComponent<Button>().onClick.AddListener(Restart);
         }
 
         // Update is called once per frame
@@ -711,7 +725,7 @@ namespace Mine
 
         public void Restart()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }
